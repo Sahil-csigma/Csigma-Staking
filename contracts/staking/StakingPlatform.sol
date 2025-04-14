@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-/// @author RetreebInc
 /// @title Staking Platform with fixed APY and lockup
 contract StakingPlatform is IStakingPlatform, Ownable {
     using SafeERC20 for IERC20;
@@ -209,6 +208,23 @@ contract StakingPlatform is IStakingPlatform, Ownable {
         returns (uint)
     {
         return _calculateRewards(stakeHolder);
+    }
+
+    /**
+     * @notice function that returns the amount of unfunded rewards
+     * that can be claimed by all the user
+     * @param stakeHolders, address of the users to be checked
+     * @return needed total unfunded rewards
+     */
+    function getUnfundedRewardAmount(address[] calldata stakeHolders) external view returns (uint needed) {
+        uint totalPending;
+        for (uint i = 0; i < stakeHolders.length; i++) {
+            totalPending += _calculateRewards(stakeHolders[i]);
+        }
+        uint required = _totalStaked + totalPending;
+        uint balance = token.balanceOf(address(this));
+
+        needed = required > balance ? required - balance : 0;
     }
 
     /**
