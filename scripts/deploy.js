@@ -30,20 +30,21 @@ async function main() {
     n18("20000000")
   );
   await stakingPool.deployed();
+  console.log("Staking platform -- Staking Pool deployed to:", stakingPool.address);
 
   await stakingPool.startStaking();
+  console.log("Staking has been started");
 
   await sigmaTokenInstance.transfer(stakingPool.address, n18("5000000"));
+  console.log("Initial rewards funded to the staking contract.");
 
-  setTimeout(async () => {
-    await hre.run("verify:verify", {
-      address: stakingPool.address,
-      constructorArguments: [sigmaTokenAddress, 25, 365, 0, n18("20000000")],
-      contract: "contracts/staking/StakingPlatform:StakingPlatform",
-    });
-  }, 60000);
+  await hre.run("verify:verify", {
+    address: stakingPool.address,
+    constructorArguments: [sigmaTokenAddress, 25, 365, 0, n18("20000000")],
+    contract: "contracts/staking/StakingPlatform.sol:StakingPlatform",
+  });
 
-  console.log("Staking platform -- Staking Pool deployed to:", stakingPool.address);
+  
 }
 
 // We recommend this pattern to be able to use async/await everywhere

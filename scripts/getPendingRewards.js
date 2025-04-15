@@ -29,6 +29,11 @@ async function main() {
   const stakers = Array.from(uniqueUsers);
   console.log(`Found ${stakers.length} unique stakers.`);
 
+  if (stakers.length === 0) {
+    console.log("No stakers found in the given block range.");
+    return;
+  }
+  
   // 2. Call getUnfundedRewardAmount()
   const totalRewards = await contract.getUnfundedRewardAmount(stakers);
   const formatted = ethers.utils.formatUnits(totalRewards, 18); // token has 18 decimals
