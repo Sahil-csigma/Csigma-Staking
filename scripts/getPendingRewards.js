@@ -6,8 +6,8 @@ const ABI = [
   "function getUnfundedRewardAmount(address[] calldata stakeHolders) external view returns (uint)",
 ];
 
-const stakingContractAddress = "0xF10bdCCB81a6831af2066f498200fE7cfEE4361e";
-const startBlock = 8116676;
+const stakingContractAddress = "0xa9DE426844F16e398B0dc181e253E664A01843F2";
+const startBlock = 8128573;
 
 async function main() {
   const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL);
