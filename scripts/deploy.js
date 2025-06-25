@@ -17,6 +17,11 @@ async function main() {
   const sigmaToken = await hre.ethers.getContractFactory("Token");
   const sigmaTokenAddress = process.env.TOKEN_ADDRESS
   const sigmaTokenInstance = await sigmaToken.attach(sigmaTokenAddress);
+  //TODO: Enter Before Deployement
+  const fixedAPY = "";
+  const stakingDurationInDays = "";
+  const maxStaking = n18("");
+  const initialFunding = n18("");
 
   const StakingPlatform = await hre.ethers.getContractFactory(
     "StakingPlatform"
@@ -24,10 +29,10 @@ async function main() {
 
   const stakingPool = await StakingPlatform.deploy(
     sigmaTokenAddress,
-    25,
-    365,
+    fixedAPY,
+    stakingDurationInDays,
     0,
-    n18("20000000")
+    maxStaking
   );
   await stakingPool.deployed();
   console.log("Staking platform -- Staking Pool deployed to:", stakingPool.address);
@@ -35,15 +40,18 @@ async function main() {
   await stakingPool.startStaking();
   console.log("Staking has been started");
 
-  await sigmaTokenInstance.transfer(stakingPool.address, n18("5000000"));
-  console.log("Initial rewards funded to the staking contract.");
+  // Wait 30 seconds before verifying
+  console.log("Waiting 30 seconds before contract verification...");
+  await new Promise((resolve) => setTimeout(resolve, 30_000));
 
   await hre.run("verify:verify", {
     address: stakingPool.address,
-    constructorArguments: [sigmaTokenAddress, 25, 365, 0, n18("20000000")],
+    constructorArguments: [sigmaTokenAddress, fixedAPY, stakingDurationInDays, 0, maxStaking],
     contract: "contracts/staking/StakingPlatform.sol:StakingPlatform",
   });
-
+  
+  await sigmaTokenInstance.transfer(stakingPool.address, initialFunding);
+  console.log("Initial rewards funded to the staking contract.");
   
 }
 
