@@ -14,77 +14,45 @@ async function main() {
   // manually to make sure everything is compiled
   await hre.run("compile");
 
-  const Token = await hre.ethers.getContractFactory("Token");
-  const token = await Token.deploy(n18("1000000000"));
-  await token.deployed();
+  const sigmaToken = await hre.ethers.getContractFactory("Token");
+  const sigmaTokenAddress = process.env.TOKEN_ADDRESS
+  const sigmaTokenInstance = await sigmaToken.attach(sigmaTokenAddress);
+  //TODO: Enter Before Deployement
+  const fixedAPY = "";
+  const stakingDurationInDays = "";
+  const maxStaking = n18("");
+  const initialFunding = n18("");
 
   const StakingPlatform = await hre.ethers.getContractFactory(
     "StakingPlatform"
   );
 
-  const deepPool = await StakingPlatform.deploy(
-    token.address,
-    25,
-    365,
-    365,
-    n18("20000000")
+  const stakingPool = await StakingPlatform.deploy(
+    sigmaTokenAddress,
+    fixedAPY,
+    stakingDurationInDays,
+    0,
+    maxStaking
   );
-  await deepPool.deployed();
+  await stakingPool.deployed();
+  console.log("Staking platform -- Staking Pool deployed to:", stakingPool.address);
 
-  await deepPool.startStaking();
+  await stakingPool.startStaking();
+  console.log("Staking has been started");
 
-  const midPool = await StakingPlatform.deploy(
-    token.address,
-    12,
-    365,
-    270,
-    n18("35000000")
-  );
-  await midPool.deployed();
+  // Wait 30 seconds before verifying
+  console.log("Waiting 30 seconds before contract verification...");
+  await new Promise((resolve) => setTimeout(resolve, 30_000));
 
-  await midPool.startStaking();
-
-  const quickPool = await StakingPlatform.deploy(
-    token.address,
-    9,
-    365,
-    180,
-    n18("45000000")
-  );
-
-  await quickPool.deployed();
-
-  await quickPool.startStaking();
-
-  await token.transfer(quickPool.address, n18("40250000"));
-  await token.transfer(midPool.address, n18("42000000"));
-  await token.transfer(deepPool.address, n18("5000000"));
-
-  setTimeout(async () => {
-    await hre.run("verify:verify", {
-      address: token.address,
-      constructorArguments: [n18("1000000000")],
-      contract: "contracts/token/Token.sol:Token",
-    });
-    await hre.run("verify:verify", {
-      address: deepPool.address,
-      constructorArguments: [token.address, 25, 365, 365, n18("20000000")],
-      contract: "contracts/staking/StakingPlatform:StakingPlatform",
-    });
-    await hre.run("verify:verify", {
-      address: midPool.address,
-      constructorArguments: [token.address, 12, 365, 270, n18("35000000")],
-    });
-    await hre.run("verify:verify", {
-      address: quickPool.address,
-      constructorArguments: [token.address, 9, 365, 180, n18("45000000")],
-    });
-  }, 60000);
-
-  console.log("Token deployed to:", token.address);
-  console.log("Staking platform -- Deep Pool deployed to:", deepPool.address);
-  console.log("Staking platform -- Mid Pool deployed to:", midPool.address);
-  console.log("Staking platform -- Quick Pool deployed to:", quickPool.address);
+  await hre.run("verify:verify", {
+    address: stakingPool.address,
+    constructorArguments: [sigmaTokenAddress, fixedAPY, stakingDurationInDays, 0, maxStaking],
+    contract: "contracts/staking/StakingPlatform.sol:StakingPlatform",
+  });
+  
+  await sigmaTokenInstance.transfer(stakingPool.address, initialFunding);
+  console.log("Initial rewards funded to the staking contract.");
+  
 }
 
 // We recommend this pattern to be able to use async/await everywhere

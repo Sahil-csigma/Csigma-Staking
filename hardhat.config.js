@@ -1,9 +1,8 @@
 require("dotenv").config();
-
-require("@nomiclabs/hardhat-etherscan");
 require("@nomiclabs/hardhat-waffle");
 require("hardhat-gas-reporter");
 require("solidity-coverage");
+require("@nomicfoundation/hardhat-verify");
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -35,23 +34,33 @@ module.exports = {
     hardhat: {
       initialBaseFeePerGas: 0, // workaround from https://github.com/sc-forks/solidity-coverage/issues/652#issuecomment-896330136 . Remove when that issue is closed.
     },
-    ropsten: {
-      url: process.env.ROPSTEN_URL || "",
+    mainnet: {
+      url: process.env.RPC_URL || "",
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
-    goerli: {
-      url: process.env.GOERLI_URL || "",
+    sepolia: {
+      url: process.env.RPC_URL || "",
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
-    ftmtest: {
-      url: process.env.TESTFTM_URL || "",
+    arbitrum: {
+      url: process.env.RPC_URL || "",
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
-    fantom: {
-      url: process.env.FANTOM_URL || "",
+    arbitrumSepolia: {
+      url: process.env.RPC_URL || "",
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+    base: {
+      url: process.env.RPC_URL || "",
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+    baseSepolia: {
+      url: process.env.RPC_URL || "",
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
